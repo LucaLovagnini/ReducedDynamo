@@ -1,0 +1,227 @@
+This is pdfTeX, Version 3.1415926-2.4-1.40.13 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2013.10.27)  28 OCT 2013 18:35
+entering extended mode
+**title_page_1.tex
+(C:\Users\luca-kun\Dropbox\ReducedDynamo\ReducedDynamo\title_page_1.tex
+LaTeX2e <2011/06/27>
+Babel <v3.8m> and hyphenation patterns for english, afrikaans, ancientgreek, arabic, armenian, assamese, basque, bengali
+, bokmal, bulgarian, catalan, coptic, croatian, czech, danish, dutch, esperanto, estonian, farsi, finnish, french, galic
+ian, german, german-x-2012-05-30, greek, gujarati, hindi, hungarian, icelandic, indonesian, interlingua, irish, italian,
+ kannada, kurmanji, latin, latvian, lithuanian, malayalam, marathi, mongolian, mongolianlmc, monogreek, ngerman, ngerman
+-x-2012-05-30, nynorsk, oriya, panjabi, pinyin, polish, portuguese, romanian, russian, sanskrit, serbian, slovak, sloven
+ian, spanish, swedish, swissgerman, tamil, telugu, turkish, turkmen, ukenglish, ukrainian, uppersorbian, usenglishmax, w
+elsh, loaded.
+
+! LaTeX Error: Missing \begin{document}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.4 \center
+            % Center everything on the page
+You're in trouble here.  Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+Overfull \hbox (20.0pt too wide) in paragraph at lines 4--4
+[] 
+ []
+
+! Undefined control sequence.
+<recently read> \LARGE 
+                       
+l.10 \textsc{\LARGE Universit\`a di Pisa}
+                                         \\[1.5cm] % Name of your university...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+
+Overfull \hbox (54.67194pt too wide) in paragraph at lines 10--10
+ \OT1/cmr/m/sc/10 Universit[]a 
+ []
+
+
+Overfull \hbox (9.26663pt too wide) in paragraph at lines 10--10
+ \OT1/cmr/m/sc/10 di 
+ []
+
+
+Overfull \hbox (21.14986pt too wide) in paragraph at lines 10--10
+ \OT1/cmr/m/sc/10 Pisa 
+ []
+
+! Undefined control sequence.
+<recently read> \Large 
+                       
+l.11 \textsc{\Large Informatica Applicata}
+                                          \\[0.5cm] % Major heading such as ...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+
+Overfull \hbox (61.61078pt too wide) in paragraph at lines 11--11
+ []\OT1/cmr/m/sc/10 Informatica 
+ []
+
+
+Overfull \hbox (17.4943pt too wide) in paragraph at lines 11--11
+ \OT1/cmr/m/sc/10 Ap- 
+ []
+
+
+Overfull \hbox (17.51099pt too wide) in paragraph at lines 11--11
+ \OT1/cmr/m/sc/10 pli- 
+ []
+
+
+Overfull \hbox (22.7554pt too wide) in paragraph at lines 11--11
+ \OT1/cmr/m/sc/10 cata 
+ []
+
+! Undefined control sequence.
+<recently read> \large 
+                       
+l.12 ...tsc{\large Progetto di Reti e Calcolatori}
+                                                  \\[0.5cm] % Minor heading ...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+
+Overfull \hbox (49.73857pt too wide) in paragraph at lines 12--12
+ []\OT1/cmr/m/sc/10 Progetto 
+ []
+
+
+Overfull \hbox (9.26663pt too wide) in paragraph at lines 12--12
+ \OT1/cmr/m/sc/10 di 
+ []
+
+
+Overfull \hbox (22.51094pt too wide) in paragraph at lines 12--12
+ \OT1/cmr/m/sc/10 Reti 
+ []
+
+
+Overfull \hbox (5.57774pt too wide) in paragraph at lines 12--12
+ \OT1/cmr/m/sc/10 e 
+ []
+
+
+Overfull \hbox (22.9054pt too wide) in paragraph at lines 12--12
+ \OT1/cmr/m/sc/10 Cal- 
+ []
+
+
+Overfull \hbox (16.04434pt too wide) in paragraph at lines 12--12
+ \OT1/cmr/m/sc/10 co- 
+ []
+
+
+Overfull \hbox (15.04436pt too wide) in paragraph at lines 12--12
+ \OT1/cmr/m/sc/10 la- 
+ []
+
+
+Overfull \hbox (21.311pt too wide) in paragraph at lines 12--12
+ \OT1/cmr/m/sc/10 tori 
+ []
+
+! Undefined control sequence.
+l.19 { \huge
+             \bfseries Reduced Dynamo}\\[0.4cm] % Title of your document
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+
+Overfull \hbox (43.44423pt too wide) in paragraph at lines 19--19
+ []\OT1/cmr/bx/n/10 Reduced 
+ []
+
+
+Overfull \hbox (18.72212pt too wide) in paragraph at lines 19--19
+ \OT1/cmr/bx/n/10 Dy- 
+ []
+
+
+Overfull \hbox (27.31233pt too wide) in paragraph at lines 19--19
+ \OT1/cmr/bx/n/10 namo 
+ []
+
+! Undefined control sequence.
+l.27 \Large
+            \emph{Autore:}\\
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+
+Overfull \hbox (32.93169pt too wide) in paragraph at lines 27--27
+ []\OT1/cmr/m/it/10 Autore: 
+ []
+
+Missing character: There is no L in font nullfont!
+Missing character: There is no u in font nullfont!
+Missing character: There is no c in font nullfont!
+Missing character: There is no a in font nullfont!
+
+Overfull \hbox (16.96654pt too wide) in paragraph at lines 28--28
+ \OT1/cmr/m/sc/10 Lo- 
+ []
+
+
+Overfull \hbox (35.87762pt too wide) in paragraph at lines 28--28
+ \OT1/cmr/m/sc/10 vagnini 
+ []
+
+! Undefined control sequence.
+l.34 {\large
+             A.A. 2012/2013}\\[3cm] % Date, change the \today to a set date ...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+Missing character: There is no A in font nullfont!
+Missing character: There is no . in font nullfont!
+Missing character: There is no A in font nullfont!
+Missing character: There is no . in font nullfont!
+Missing character: There is no 2 in font nullfont!
+Missing character: There is no 0 in font nullfont!
+Missing character: There is no 1 in font nullfont!
+Missing character: There is no 2 in font nullfont!
+Missing character: There is no / in font nullfont!
+Missing character: There is no 2 in font nullfont!
+Missing character: There is no 0 in font nullfont!
+Missing character: There is no 1 in font nullfont!
+Missing character: There is no 3 in font nullfont!
+)
+! Emergency stop.
+<*> title_page_1.tex
+                    
+*** (job aborted, no legal \end found)
+
+ 
+Here is how much of TeX's memory you used:
+ 19 strings out of 493921
+ 370 string characters out of 3147272
+ 50031 words of memory out of 3000000
+ 3409 multiletter control sequences out of 15000+200000
+ 4595 words of font info for 17 fonts, out of 3000000 for 9000
+ 841 hyphenation exceptions out of 8191
+ 14i,1n,10p,142b,69s stack positions out of 5000i,500n,10000p,200000b,50000s
+!  ==> Fatal error occurred, no output PDF file produced!

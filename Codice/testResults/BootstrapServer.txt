@@ -1,0 +1,16 @@
+Creazione LogManager completata
+Indirizzo IP BootstrapServer:131.114.40.42
+Nodo di Bootstrap:0
+ipStorageNode=29.82.173.64 UDPport=1028 TCPport=5
+Nodo di Bootstrap:0
+ipStorageNode=29.82.173.64 UDPport=1028 TCPport=5
+Nodo di Bootstrap:0
+ipStorageNode=29.82.173.64 UDPport=1028 TCPport=5
+Nodo di Bootstrap:0
+ipStorageNode=29.82.173.64 UDPport=1028 TCPport=5
+Nodo di Bootstrap:1
+ipStorageNode=203.165.217.186 UDPport=1024 TCPport=1
+Nodo di Bootstrap:3
+ipStorageNode=163.94.218.163 UDPport=1033 TCPport=10
+Nodo di Bootstrap:2
+ipStorageNode=129.124.125.48 UDPport=1026 TCPport=3

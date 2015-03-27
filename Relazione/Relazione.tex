@@ -1,0 +1,365 @@
+
+\documentclass{report}
+\usepackage{graphicx}
+\usepackage{layout}
+\begin{document}
+
+\begin{titlepage}
+\input{./title_page_1.tex}
+\end{titlepage}
+
+\tableofcontents
+
+\chapter{Archittetura e Sturtture Dati}
+\subsubsection{Introduzione e Versione del Progetto}
+In questo capitolo verranno trattate le entit\`a principali del Progetto, descrivendone il ruolo all'interno del sistema e le loro caratteristiche.
+
+Si faccia notare che alcune di queste entit\`a, rispetto alle specifiche inizialmente fornite per il progetto, sono state introdotte dall'autore, per renderne pi\`u chiaro lo scopo in questo e nei capitoli successivi.
+
+Le entit\`a sono distinguibili in due categorie:
+\begin{itemize}
+\item Entit\`a Principali: contraddistinte da una sezione dedicata, dalla loro complessit\`a e dall'importanza dei compiti da essi svolte.
+\item Subentit\`a: entit\`a create/gestite da Entit\`a Principali, svolgono un ruolo di monitoraggio e/o di controllo, oppure rappresentano un sottoinsieme di Entit\`a Principali. Esse verranno trattate nel corso del capitolo all'interno di altre Entit\`a Principali (generalmente quelle che le gestiscono).
+\end{itemize}
+Infine, si ricorda che questo Progetto riguarda l'implementazione di \textit{Reduced Dynamo} nella versione dove \textit{non} \`e contemplata l'operazione di rimozione di nodi dalla \textit{DHT}.
+\pagebreak
+\section{Principali Entit\`a}
+
+\subsection{Bootstrap Server}
+\`E l'entit\`a che rappresenta il Server di Sistema. Si occupa essenzialmente di 3 compiti:
+\begin{enumerate}
+\item Ricevere in ingresso la richiesta di un nuovo Storage Node che desidera essere inserito all'interno della \textit{DHT}. Il Bootstrap Server, in seguito a tale richiesta, decide quale sar\`a il Nodo di Bootstrap a cui il nuovo Storage Node dovr\`a rivolgersi (tramite la storageNodeList). 
+\item Ricevere in ingresso la richiesta di un Client che vuole effettuare la ricerca di un particolare dato all'interno della \textit{DHT} (o pi\`u precisamente, del suo identificatore). Come nel caso del nuovo Storage Node, il Boostrap Server si occupa di decidere quale Bootstrap Node dovr\`a occuparsi della richiesta del Cient in questione. 
+\item Decreta quali Storage Node all'interno della \textit{DHT} sono dei Bootstrap Node, ed aggiorna la storageNodeList di conseguenza.
+\end{enumerate}
+
+\subsubsection{Log Manager}
+Il Log Manager \`e una subentit\`a creata e gestita dal Bootstrap Server. Ha il compito di registrare tutti gli Storage Node che hanno completato la loro operazione di inerimento all'interno della \textit{DHT} (e le relative informazioni che li caratterizzano).
+
+Secondo l'implementazione svolta, la registrazione di tali eventi viene effettuata su un file di testo.
+
+\subsubsection{Keep Alive Controller}
+La subentit\`a in questione (da ora chiamata Controller) \`e stata introdotta dallo sviluppatore del progetto in seguito alla necessit\`a di un processo che si dedicasse esclusivamente al relativo scopo. 
+
+Infatti, a causa di possibili malfunzionamenti all'interno della rete dove risiede il Sistema, oppure a problemi derivata dall'uso di certi protocolli (ad esempio l'UDP), un Nodo di Bootstrap potrebbe non essere pi\`u raggiungibile (sia dal Bootstrap Server che da qualsiasi altra entit\`a nel Sistema). Il Controller si occupa quindi di gestire i messaggi di Keep Alive inviati dai Bootstrap Node e, nel caso essi non vengano ricevuti, comuniarlo al Bootstrap Server (che di conseguenza ne sceglier\`a di nuovi).
+
+\subsection{Storage Node}
+Si tratta dell'entit\`a che detiene i dati presenti nel Sistema. Inizialmente segue una procedura per il proprio inserimento all'interno della \textit{DHT}, il quale coinvolge il Bootstrap Server, uno Bootstrap Node ed un altro Storage Node.
+Dopo aver effettuato con successo il proprio inserimento nella struttura ad anello, si occupa di svolgere i seguenti compiti:
+\begin{enumerate}
+\item In seguito ad un nuovo nodo che diviene predecessore dello Storage Node nell'anello del Sistema, lo Storage Node in questione ha il compito di fornire al nuovo nodo i propri dati che divengono di sua competenza. Ovviamente, \`e possibile che lo Storage Node in questione non detenga alcun dato (e di conseguenza neppure il suo nuovo predecessore), come \`e anche possibile che il nuovo predecessore non riceva alcun dato (perch\`e non di sua competenza).
+\item La ricerca da parte di un cliente viene gestita dallo Storage Node che detiene il dato cercato all'interno della propria dataTable. Tuttavia, lo Storage Node detentore del dato non riceve in ingresso una richiesta direttamente da parte del Client, bens\`i dal Bootstrap Node a cui il Client si \`e rivolto. Invece, la risposta da parte dello Storage Node detentore del dato cercato, avviene direttamente verso il Client in questione.
+\end{enumerate}
+\subsubsection{Bootstrap Node}
+Malgrado sia stata classificata come subentit\`a, l'insieme dei Bootstrap Node ricorprono un ruolo fondamentale in \textit{Reduced Dynamo}: gestiscono in maniera diretta le richieste che vengono fatte al Bootstrap Server , permettendo cos\`i di distribuire il carico di lavoro tra i vari Bootstrap Node. 
+In particolare, essi si occupano di:
+\begin{enumerate}
+\item Ricevere le comunicazioni da parte di un nuovo Storage Node, decretare quale nodo nell'anello ricoprir\`a il ruolo di suo successore ed infine fornigli le informazioni necessarie per poterlo contattare.
+\item In seguito ad una richiesta da parte di un Client, determinare quale Storage Node \`e il detentore del dato cercato e contattarlo personalmente inoltrando la richiesta del Client.
+\end{enumerate}
+\subsubsection{Keep Alive Maker}
+Questa subenetit\`a \`e creata e gestita dai nodi nell'anello che assumono il ruolo di Bootstrap Node. Per le ragioni spiegate durante la descrizione del Keep Alive Controller, il Keep Alive Maker \`e un processo (o meglio, un Thread) che esegue il Task di inviare periodicamente segnali di presenza al Controller.
+\subsection{Client}
+\`E l'unica entit\`a esterna alla struttura ad anello che caratterizza la \textit{DHT}. Infatti ricopre il ruolo di utilizzatore dei servizi offerti dal Sistema, che consistono nella ricerca di dati presenti in esso. Il Client fornir\`a come richiesta l'identificatore del dato desiderato, e come risposta ricever\`a (se presente) il contenuto del dato in questione presente nell'anello. 
+\section{Strutture Dati}
+\subsection{DHT (\textit{Distributed Hash Table})}
+\`E la struttura "madre" di \textit{Reduced Dynamo}, nonch\`e unica Stuttura Dati qui descritta di natura astratta.
+
+Infatti, la complicata struttura ad anello che caratterizza il Sistema, non \`e una struttura dati concreta manipolabile in maniera diretta, ma la combinazione delle dataTable e nodeTable presenti (e diverse) su ciascun Storage Node facenti parti del sistema. 
+
+Comunque, si ricorda che il criterio per la generazione di identificatori per Storage Node e dati presenti nella \textit{DHT} si basa sull'utilizzo della funzione \textit{SHA-1}.
+\subsection{storageNodeList}
+La storageNodeList, utilizzata esclusivamente dal BootstrapServer, \`e un ArrayList di stringhe contente le informazioni che identificano l'insieme attuali di Nodi di Bootstrap nel Sistema. Come vedremo in seguito, tale tabella viene modificata da questa entit\`a, ma viene copiata ed utilizzata anche dal Keep Alive Controller.
+
+\subsection{dataTable}
+La dataTable \`e una delle due strutture dati che formano e rappresentano la \textit{DHT}. Ironia della sorte, non \`e altro che una Hash Table che funge da Database dei dati presenti nel Sistema, con gli unici due campi del dato stesso e del suo identificatore (che funge da chiave ed \`e ottenuto tramite la funzione \textit{SHA-1}).
+
+Ogni Storage Node ha la propria dataTable, ed ogni elemento \`e presente solo in quel particolare nodo in tutto l'anello. Come verr\`a spiegato dettagliatamente in seugito, essa viene gestita dall'oggetto che si occupa delle connessioni TCP dello Storage Node, e viene utilizzata ogni volta che viene aggiornato il predecessore del relativo Storage Node, oppure per effettuare la ricerca di un dato voluto da un Client.  
+\subsection{nodeTable}
+Come per la dataTable, anche la nodeTable \`e una struttura dati presente in ogni Storage Node del Sistema. A differenza dell'applicazione originale, dove ciascun nodo del Sistema conosce solo un sottoinsieme dei nodi presenti nell'anello, in \textit{Reduced Dynamo} ciascun Storage Node conosce le informazioni necessarie a contattare qualsiasi altro anello attualmente presente nella \textit{DHT}.
+
+Anche in questo caso, la nodeTable \`e stata implementata come una Hash Table dove la chiave \`e rappresentata da un intero, ovvero l'identificatore del nodo di cui sono riportate le informazioni per poterlo contattare. Tali informazioni sono:
+\begin{itemize}
+\item Indirizzo IP
+\item Porta su cui \`e aperta una Socket UDP in ascolto
+\item Porta su cui \`e aperta una Socket TCP in ascolto
+\end{itemize}
+Queste informazioni sono contenute in un'unica stringa che rappresenta il dato della Hash Table. Come vedremo in seguito, la nodeTable \`e gestita dall'oggetto che gestisce le operazioni di Multicast dello Storage Node.
+\subsection{socketList}
+Si tratta di un Array List di Socket, utilizzata dagli oggetti che formano il meccanismo di "Server Polling" che caratterizzano gli oggetti che gestiscono le connessioni TCP ed UDP per ciascun Storage Node del Sistema.
+
+\textbf{Nota:} nella sezione di codice in cui si tratta tale struttura dati, essa viene indicata semplicemente come "list"; in questa relazione \`e stata rinominata per renderne pi\`u chiaro il suo scopo ed utilizzo.
+\subsection{dataFile}
+Questa semplice struttura dati non \`e altro che un file di testo che contiene tutti i dati necessari che verranno caricati nel Sistema. Il delimitatore di un dato nel file \`e l'interruzione della relativa linea di testo.
+\chapter{Descrizione delle Classi e Scelte Implementative}
+In questo capitolo ci concenteremo sulla descrzione di ciascuna delle classi Java che compongono il Progetto.\\
+
+Verranno riportati anche una serie di diagrammi UML (diagrammi di Sequenza) per rendere ancora pi\`u chiaro la struttura delle Classi e come si relazionano tra loro i vari oggetti che le implementano.
+
+Infine, per non rendere troppo pesante la descrizione delle classi, non verranno trattate le differenze tra la versione in Ambiente Locale del Progetto e la versione di Rete durante la descrizione delle Classi, dato che le differenze sono essenzialmente due:
+\begin{enumerate}
+\item Un utilizzo diverso dei parametri con cui si eseguono i vari Main del progetto. Tale aspetto verr\`a dettagliatamente trattato nel Capitolo 3.
+\item Una definizione diversa delle variabili che permettono le comunicazioni sopradescritte: in particolare, verranno assegnati valori diverse alle InetAddress a seconda della versione utilizzata. 
+\end{enumerate}
+\section{BootstrapServer}
+Di seguito verranno riportate le classi che implementano l'entit\`a Bootstrap Server. Si anticipa comunque che il numero di Thread che rappresentano il Bootstrap Server sono 2: un Thread che esegue il Task della Classe LogManager\_Implementation ed un altro quello della Classe BootstrapServer\_KeepAlive. Dato che entrambe le classi sono l'implementazione di subentit\`a, si \`e deciso che i relativi Thread siano classificati come demoni.
+
+\subsection{BootstrapServer\_Monitor}
+Come \`e stato spiegato durante la descrizione delle principali Strutture Dati presenti in \textit{Reduced Dynamo}, ciascun nodo ha una propria nodeTable, la quale contiene le informazioni necessarie a contattare qualsiasi nodo presente sull'anello. Inoltre, ciascun nodo ha una propria dataTable, la quale contiene i dati che detiene il relativo nodo.
+
+Come si pu\`o bene immaginare, \`e necessario un meccanismo che garantisca una mutua esclusione tra vari oggetti che vogliano modificare i contenuti di queste tabelle. 
+
+Un caso piuttosto ovvio per cui si rende necessario quanto sopra detto \`e quando (ad esempio) un Client effettua la ricerca su un dato che, in contemporanea, viene trasferito su un altro nodo, a seguito del simultaneo ingresso di un nuovo Storage Node nell'anello. Il risultato \`e la risposta dell'ex proprietario al Client dicendo che il dato non \`e presenta nel sistema.\\
+
+Il modello quindi risultante da questa serie di osservazioni \`e il modello noto in letteratura come "Readers \& Writers". In particolare, i Writers (ovvero i nuovi Storage Node), sono autorizzati a procedere con le loro operazioni di inserimento nell'anello se e solo se non sono presenti altri Writers o Readers (cio\`e i Client) che stanno svolgendo le proprie operazioni. Viceversa, i Readers sono autorizzati a procedere se e solo se nessun Writers sta eseguendo le proprie operazioni di inserimento (ma possono procedere in presenza di altri Readers). Per evitari situazioni di Starvation, si \`e deciso di alternare le autorizzazioni concesse ai Writers ed ai Readers.
+
+Rispetto al classico modello sopra descritto, c'\`e un fattore aggiuntivo: se il Keep Alive Controller desidera aggiornare la storageNodeList del Bootstrap Server, allora ha la precedenza su tutti i Writers e/o Readers che hanno intenzione di procedere. In questo modo si evita che nuovi Storage Node o Client si rivolgano a Bootstrap Node potenzialmente non pi\`u raggiungibili.
+
+I metodi di \texttt{start\_join\_Node} e \texttt{start\_search\_Client} indicano l'introduzione nel modello utilizzato rispettivamente di un nuovo Writer e di un nuovo Reader, iniziando cos\`i i tentativi di acquisizione della lock. Analogamente, i metodi \texttt{end\_join\_Node} e \texttt{end\_search\_Client} indicano il rilascio della lock acquisita. Infine, i metodi di \texttt{start\_Keep\_Alive} e \texttt{end\_Keep\_Alive} hanno operazioni analoghe a quelle gi\`a descritte, ma con condizioni sull'acquisizioni della lock "meno severe" (avendo una maggiore priorit\`a).
+
+\subsection{BootstrapServer\_Interface}
+Dato che le interrogazini da parte di un Client oppure di un nuovo Storage Node verso il Server deve avvenire tramite RMI, \`e necessaria un'interfaccia che indichi quali sono i metodi del Bootstrap Server possano essere chiamati in remoto. 
+
+Questi metodi riguardano l'operazione di ingresso da parte di un nuovo Storage Node e di un Client.
+\subsection{BootstrapServer\_Implementation}
+\`E la parte pi\`u importante nell'implementazione dell'entit\`a Bootstrap Server, in quanto (come suggerisce il nome della Classe) vengono implementati i metodi remoti descritti in BootstrapServer\_Interface.
+
+In particolare, il metodo \texttt{start\_join\_node} (chiamato da un nuovo Storage Node) permette per prima cosa di ottenere la mutua esclusione sull'accesso alle strutture condivise (dato che si richiama immediatamente il relativo metodo del BootstrapServer\_Monitor). 
+
+Successivamente, nel caso in cui il nodo in questione \`e il primo ad essere inserito nel sistema, si crea e lancia il Thread che esegue il Task della Classe BootstrapServer\_KeepAlive, ovvero si crea la subentit\`a Keep Alive Controller.
+
+Altrimenti si sceglie casualmente un elemento presente nella storageNodeList, si ricavano i dati per poterlo contattare e li si forniscono come parametro di ritorno al metodo. Prima della fine del metodo, si verifica se sono presenti gi\`a \textit{k} elementi nella storageNodeList: se cos\`i non fosse, si aggiunge il nodo che ha chiamato il metodo.
+
+Il metodo \texttt{start\_client\_search} risulta pi\`u semplice del precedente, in quanto non sono necessarie tutte le operazioni e controlli che riguardano l'inserimento di un nodo nell'anello.
+
+Infine, i metodi di \texttt{setStorageNodeList} e \texttt{getStorageNodeList} vengono richiamati dall'oggetto che implementa la Classe BootstrapServer\_KeepAlive per permettere la manipolazione della storageNodeList; mentre il \texttt{setLogManager} \`e per permettere al Bootstrap Server di avere un riferimento al Log Manager creato (e comunicargli l'avvenuto ingresso di nuovi nodi).
+\subsection{BootstrapServer\_KeepAlive}
+Il Thread demone che esegue il \texttt{run()} di questa classe scrive priodicamente su un file \textit{KeepAlive.txt} i pacchetti di notifica di presenza da parte di tutti i Bootstrap Node, la tabella dei Bootstrap Node attuale e la tabella dei Bootstrap Node (eventualmente) aggiornata.
+
+Per fare ci\`o, crea una DatagramSocket su una porta nota ed esclusiva. Dopodich\`e inizia la propria fase di ascolto per un periodo di 5 secondi, durante i quali aggiunge i datagrammi ricevuti in un'apposita lista messList.
+
+Dopodich\`e ottiene la storageNodeList attuale dal Bootstrap Server tramite il metodo \texttt{getStorageNodeList()} della classe BootstrapServer\_Implementation, e verifica che tutti gli elementi in essa presenti compaiano anche in messList. Se cos\`i non fosse, elimina gli elementi della storageNodeList presente sul Bootstap Server di cui non si \`e ricevuto il Keep Alive tramite il metodo \texttt{setStorageNodeList()}.\\
+
+Infine elimina i possibili elementi ancora presenti all'interno di messList (\`e infatti possibile che un pacchetto "perso nella rete" arrivi a destinazione quando il relativo Storage Node ormai non \`e pi\`u un Bootstrap Node, e quindi viene scartato).
+
+\subsection{LogManager\_Interface}
+Dato che le notifiche da parte del Bootstrap Server di avvenuto inserimento di un nuovo Storage Node avvengono tramite un meccanismo di callback attraverso RMI, qui viene dichiarato il metodo chiamato in remoto da parte del Bootstrap Server, ovvero \texttt{notifyMe} (chiamato durante l'esecuzione del metodo \texttt{end\_join\_node}).
+\subsection{LogManager\_Implementation}
+Al momento della creazione del Log Manager, il costrutture crea il file di testo \textit{LogManager.txt} nella directory di esecuzione del Sistema. Il file in questione verr\`a aggiornato ogni volta che il metodo \texttt{notifyMe} verr\`a eseguito, indicando la data ed ora in cui l'inserimento \`e stato ultimato e le informazioni che contraddistinguono il nuovo nodo.
+
+\section{Storage Node}
+\`E forse l'entit\`a la cui implementazione si \`e rivelata pi\`u difficile, dato l'alto numero di compiti assegnatogli e la loro difficolt\`a. 
+
+In questa versione di \textit{Reduced Dynamo} sono 4 i Thread che gestiscono le operazioni di ciascuno Storage Node (rappresentato ciascuno da una Classe diversa):
+\begin{itemize}
+\item Un Thread per svolgere nell'ordine corretto le operazioni per l'inserimento del nuovo Storage Node all'interno dell'anello. In particolare, questo Thread generer\`a a sua volta gli altri Thread descritti in seguito; inoltre \`e l'unico Thread che termina la propria esecuzione con l'esecuzione del proprio Task (a differenza degli altri Thread che non terminano mai i propri Task).
+\item Un Thread che gestisca le comunicazioni che avvengono tramite il Multicast, il quale si occuper\`a anche dell'aggiornamento della nodeTable
+\item Un ulteriore Thread per la gestione della connessione UDP per il nodo in questione (sia in ingresso in uscita).
+\item Ed infine un ultimo Thread per permettere la comunicazione tramite TCP.
+
+Le operazioni svolte da ciascuno di questi Thread non si limitano a quanto sopra descritto (i dettagli saranno illustrati nelle relative classi), inoltre, come \`e facile immaginare, dato che l'unione di questi Thread formano l'entit\`a di Storage Node, \`e chiaro come questi collaborino e comunichino tra loro.
+\end{itemize}
+\subsection{StorageNode}
+Lo scopo principale di questa Classe consiste nella costruzione di uno Storage Node: infatti, dopo aver contattato il Bootstrap Server e creato gli altri Thread che si occupano dei vari tipi di comunicazioni che riguardano lo Storage Node in questione, esso termina normalmente (a differenza degli altri Thread da lui generati, come si \`e gi\`a detto nel precedente paragrafo).
+
+La comunicazione inziale con il Bootstrap Server ha lo scopo di ottenere l'indirizzo del Bootstrap Node a cui rivolgersi (tranne che non si tratti del primo Storage Node!) ed ottenere la Lock da parte dell BootstrapServer\_Monitor.
+
+Fatto ci\`o , contattiamo (tramite UDP) il Bootstrap Node che ci \`e stato assegnato, fornendogli il nostro identificatore generato tramite \textit{SHA-1}. Il Bootstrap Node risponder\`a fornendoci gli indirizzi necessari per comunicare con il nostro Successore tramite TCP, insieme ad una copia della sua nodeTable. Durante questa trasmissione con il Bootstrap Node vengono effettuati anche controlli sulla presenza nell'anello di un altro nodo con il nostro stesso identificatore.
+
+Infine creiamo (nell'ordine seguente) gli oggetti delle Classi di StorageNode\_Multicast, di StorageNode\_UDP e di StorageNode\_TCP e ne lanciamo i Thread. 
+
+Se il nodo aggiunto \`e il primo dell'anello, le operazioni che riguardano altri nodi che sono state descritte in questo paragrafo (ovviamente) non avvengono, ma si leggono i dati contenuti all'interno del file \textit{textfile.txt} (che rappresenta la struttura dati dataFile) tramite il metodo \texttt{reader()} della Classe NodeFileReader, inzializzando cos\`i la dataTable.\\
+
+Tutte le Socket utilizzate durante le comunicazioni che riguardano questa Classe sono ottenute tramite l'utilizzo di un oggetto della Classe ScannerPorte (di cui parleremo pi\`u avanti). 
+ 
+\subsection{StorageNode\_Multicast}
+I compiti svolti da questa classe sono:
+\begin{itemize}
+\item Creazione del gruppo di Multicast (nel caso in cui l'oggetto di questa classe sia stato creato dal primo Storage Node dell'anello).
+\item Invio delle proprie informazioni al gruppo di Multicast.
+\item Operazione di join al grupo di Multicast.
+\item Inizio di un loop di ascolto, dove si "sniffano" tutti i messaggi spediti al gruppo di Multicast, aggiornando di conseguenza la propria nodeTable.
+\item Tramite il metodo di \texttt{getTable()} si fornisce la nodeTable aggiornata.
+\end{itemize}
+
+Si faccia notare che la nodeTable iniziale \`e fornita al momento della creazione dell'oggetto dell Classe in questione, garantendo cos\`i una nodeTable aggiornata per tutti gli Storage Node.
+\subsection{StorageNode\_UDP\&TCPMonitor}
+Prima di parlare degli oggetti che implementano le funzionalit\`a di TCP e UDP all'interno degli Storage Node, \`e bene descrivere le due classi di StorageNode\_UDPMonitor e StorageNode\_TCPMonitor, le quali sono uguali ma operano in contesti diversi. 
+
+Questi due Monitor sono necessari dal momento che pi\`u Storage Node che vogliono essere inseriti nella \textit{DHT} possono contattare lo stesso Bootstrap Node in contemporanea (e quindi \`e possibile che accadano eventi non corretti nella gestione delle funzioni UDP del nodo), oppure pu\`o capitare che pi\`u Bootstrap Node contattino insieme lo stesso Storage Node detentore di un dato cercato da un Client (e quindi un comportamento non corretto dei compiti svolti dal TCP).
+
+Per risolvere questo problema \`e stato implementato un meccanismo di "Server Polling": il Writer (ovvero la connessione in ingresso UDP e TCP) acquisisce la lock per poter accedere in maniera esclusiva sulla propria struttura dati socketList e rimane in ascolto per un certo tempo (circa 1 secondo), aggiungendo alla socketList (ovvero un Array List di DatagramPacket nel caso di UDP, mentre di Socket generate dal metodo di \texttt{accept()} nel caso del TCP) l'elemento ricevuto; allo scadere del tempo, il Writer rilascia la lock e viene acquisita dal Reader. Il Reader si occupa di leggere, soddisfare ed infine rimuovere tutte le richieste presenti nella socketList.
+
+I termini di Writer e Reader non sono casuali: l'implementazione dei Monitor sopra descritti \`e stata realizzata seguendo il modello dei Readers \& Writers di cui abbiamo gi\`a parlato durante la descrizione del BootstrapServer\_Monitor. Tuttavia, si faccia notare come nel modello qui descritto siano presenti un solo Reader ed un solo Writer, e quindi il meccanismo utilizzato risulta forse "troppo potente" o comunque "non utilizzato al massimo delle sue capacit\`a". 
+
+Tuttavia, avendo l'autore gi\`a implementato il codice del BootstrapServer\_Monitor ("riciclabile" in questo contesto), e non riducendo l'efficienza del Sistema nel suo utilizzo, si \`e comunque preferito utilizzare il modello sopra descritto piuttosto che uno ad hoc per un solo Reader ed un solo Writer.
+
+Il motivo per cui sono state create due classi uguali tra loro, al posto dell'utilizzo di due diversi oggetti per la stessa Classe, \`e stata una scelta dell'autore per rendere pi\`u chiaro il contesto in cui tali Classi vengono utilizzate.
+
+La differenza rispetto alla classe di BootstrapServer\_Monitor \`e la non presenza della entit\`a di massima precedenza, ovvero il Keep Alive.
+
+\subsection{StorageNode\_UDP\&TCPWriter}
+Queste due Classi (utilizzate a seconda del tipo di connessione a cui fanno riferimento), svolgono i compiti di Writer del Server Polling descritto nel precedente paragrafo. Differenziano sul tipo di Monitor a cui fanno riferimento, il tipo di Socket utilizzate per ricevere dati in ingresso ed il tipo di dato che aggiungono alla propria socketList.
+
+\subsection{StorageNode\_UDP}
+Di segutio sono elencate le principali funzioni di questa Classe:
+\begin{itemize}
+\item Si inizia il loop di lettura della socketList. Dopo aver acquisito la lock sulla socketList a cui si fa riferimento, si leggono tutti gli elementi presenti in essa. Di fatto quindi, si svolgono i compiti del Reader nel modello del Server Polling.
+\item  Nel caso in cui si tratti di un nuovo Storage Node:
+			\begin{itemize}
+			\item Viene richiamato il metodo \texttt{getTable()} dell'oggetto di StorageNode\_Multicast per ottenere la nodeTable aggiornata.
+			\item Vengono calcolati il successore e predecessore nell'anello del nuovo nodo (tramite i loro identificatori) e se ne salvano gli indirizzi
+			\item Si verifica che non esistano altri nodi nell'anello con lo stesso identificatore del nodo che ci ha contatti.
+			\item Si risponde tramite UDP al nodo con il risultato dell'operazione.
+			\end{itemize}
+\item Nel caso in cui si tratti invece di un Client:
+			\begin{itemize}
+			\item Si decreta quale sia il Nodo che detiene il dato cercato. Anche in questo caso, utilizziamo la nodeTable aggiornata tramite il metodo \texttt{getTable()}.
+			\item Si crea una Socket TCP connessa allo Storage Node detentore del dato e si invia uno stream di dati contente l'identificatore del dato cercato e le informazioni con cui contattare il Client in questione.
+			\end{itemize}
+\end{itemize}
+
+Anche in questa Classe si utilizza l'oggetto di ScannerPorte, in modo da poter creare una Socket TCP in sicurezza durante la comunicazione con il nodo detentore di un dato cercato da un Client.
+
+\subsection{StorageNode\_TCP}
+
+Questa Classe, oltre ad amministrare la connessione TCP dello Storage Node, implementa una serie di altre funzionalit\`a. In particolare esegue le seguenti operazioni:
+\begin{itemize}
+\item Si stabilisce una connessione TCP con il proprio Sucessore comunicandogli la nostra natura di nuovo Storage Node e si ottengono da esso i dati di nostra competenza (sempre che ve ne siano), definendo di fatto la nostra dataTable.
+\item Si stampa la propria dataTable
+\item Si inizia il loop di lettura della socketList. Dopo aver acquisito la lock sulla socketList a cui si fa riferimento, si leggono tutti gli elementi presenti in essa. Di fatto quindi, si svolgono i compiti del Reader nel modello del Server Polling.
+\item Nel caso in cui si tratti di un nuovo Storage Node:
+			\begin{itemize}
+			\item Si ottiene la nodeTable dall'oggetto StorageNode\_Multicast tramite il metodo \texttt{getTable()}.
+			\item Si calcolano quali dati sono di sua competenza leggendo la propria dataTable (la nodeTable \`e necessaria per casi particolari descritti nel codice).
+			\item Si inviano tali elementi in risposta tramite una Socket TCP.
+			\item Si stampa la propria dataTable aggiornata.
+			\end{itemize}
+\item Nel caso contrario, ovvero si tratta di un Client:
+			\begin{itemize}
+			\item Si effettua la ricerca dell'identificatore ricevuto (che rappresenta il dato cercato) nella propria dataTable
+			\item Si crea una Socket UDP e si invia il risultato della ricerca al Client.
+			\end{itemize}
+\end{itemize}
+
+Anche in questa Classe si utilizza l'oggetto di ScannerPorte, in modo da poter creare una Socket TCP in sicurezza durante la risposta al nuovo Storage Node che ci ha contattati ed inoltre la creazione di una Socket UDP per inviare il risultato sulla ricerca richiesta dal Client.
+
+\textbf{Nota sull'esecuzione:} la stampa dei contenuti della propria dataTable avviene la prima volta che essa viene definita ed ogni volta che essa viene aggiornata (ovvero quando si aggiorna il nostro predecessore). Di conseguenza, ogni volta vengono stampate due dataTable in contemporanea (cio\`e quella del nuovo Storage Node e quella del suo sucessore a cui la dataTable \`e stata aggiornata): ci\`o potrebbe causare dei problemi di leggibilit\`a delle due tabelle se il Progetto viene utilizzato nella sua versione locale, dato che le stampe degli elementi delle due tabelle potrebbero sovrapporsi l'una all'altra.
+
+\`E stato quindi deciso di far dormire ciascun Thread per un tempo proporzionale all'ordine cronologico con cui \`e stato creato il relativo Storage Node nella \textit{DHT}, garantendo cos\`i le stampe corrette delle due Tabelle. Tuttavia, tale ritardo potrebbe comportare la stampa delle Tabelle dopo che sono state svolte (e stampate) altre operazioni (come l'inizio di inserimento di un nuovo nodo nel Sistema, o l'inizio di ricerca da parte di un Client).
+\subsection{StorageNode\_KeepAlive}
+Tramite questa classe, un Nodo di Bootstrap invia i propri messaggi di Keep Alive all'oggetto della Classe BootstrapServer\_KeepAlive. \\
+
+In particolare si crea una DatagramSocket e si imposta un timeout di ascolto di 15 secondi (nel caso in cui il Keep Alive Controller non rispondesse). Dopodich\`e si invia il proprio messaggio di Keep Alive (contente le nostre informazioni sugli indirizzi che ci identificano) e si rimane in attesa di una risposta da parte del Keep Alive Controller. \\
+
+Se il timeout scade, si considera il pacchetto perduto, altrimenti si invia un nuovo messggio di Keep Alive.\\
+
+Si faccia notare che la porta su cui \`e aperta DatagramSocekt del BootstrapServer\_KeepAlive \`e nota (come l'indirizzo IP del BootstrapServer).
+
+Per l'ennesima volta viene utilizzato il metodo \texttt{DatagramSocket()} della Classe ScannerPorte per la DatgramSocket qui utilizzata.
+\section{Client}
+L'implementazione di questa entit\`a \`e piuttosto semplice: basta infatti una Classe (il cui Task \`e esegutio da un Thread dedicato) per implementare tutte le sue funzionalit\`a.
+\subsection{Client}
+Il primo compito che il \texttt{run()} di questa classe deve svolgere \`e generare in maniera pseudo-casuale il dato che vuole cercare. Per fare ci\`o sfrutta il metodo \texttt{getRandomIdData()} della classe NodeFileReader (di cui parleremo pi\`u avanti). 
+
+Dopodich\`e, deve contattare il Bootstrap Server tramite RMI ed ottenere gli indirizzi necessari a contattare tramite UDP il Bootstrap Node che gli verr\`a assegnato.\\
+
+Fatto ci\`o, viene creata una Socket UDP per poter inviare al BootstrapNode che ci \`e stato assegnato il messaggio contente i nostri indirizzi e l'identificatore del dato che vogliamo cercare. Dopo aver inviato tali informazioni, il Client rimane in ascolto sulla DatagramSocket creata in attesa del risultato della ricerca (che giunger\`a dal nodo detentore del dato, e non dal Bootstrap Node, in maniera del tutto trasparente al Client), la quale verr\`a stampata su schermo.\\
+
+Anche in questo caso viene utilizzato il metodo \texttt{DatagramSocket()} della Classe ScannerPorte per la DatgramSocket qui utilizzata.
+\section{Altre Classi}
+\subsection{ScannerPorte}
+Questa classe (cos\`i frequentemente richiamata) permette la creazione di Socket TCP o UDP in maniera "sicura", cio\`e senza rischiare che vengano create (ed utilizzate) pi\`u Socket sulla stessa porta.\\
+
+Per fare ci\`o semplicemente si tenta la creazione della Socket in questione in maniera sistematica su un insieme di porte deciso dall'autore, ignorando l'eventuale BindingException sollevata.\\
+
+Si fa notare come i metodi implementati siano di tipo synchronized: questa necessit\`a deriva dal fatto che pi\`u oggetti possano richiamare nello stesso momenti questi metodi, e quindi utilizzare diverse Socket sulla stessa porta. Garantendo la mutua esclusione all'accesso di questi metodi, si garantisce una corretta creazione delle Socket.   
+\subsection{NodeFileReader}
+Il metodo \texttt{read()} (chiamato solo dal primo Storage Node inserito) si occupa di leggere i dati contenuti nella struttura dati dataFile, ovvero il file di testo \textit{"textfile.txt"}, dove ciascun dato \`e rappresentato da ciascuna linea nel file. I tipi di dati presenti quindi in \textit{Reduced Dynamo} sono stati implementati come Stringhe.\\ 
+
+Il metodo \texttt{getRandomIdData()} (eseguito da ciascun Client) seleziona casualmente un dato presente all'interno del file e ne calcola l'identificatore tramite \textit{SHA-1}. In questo modo si garantisce che ciascun Client effettui la ricerca su un dato effettivamente presente nel Sistema.
+
+\section{Programmi Eseguibili}
+
+I programmi esegubili decritti in seguito permettono la creazione vera e propria del Sistema. Per ottimizzare l'uso di molti Thread all'interno dello stesso esegubile, si \`e deciso di utilizzare una serie di Thread Pool.
+
+\subsection{BootstrapServer\_Main}
+Tramite questo esegubile si crea l'entit\`a Bootstrap Server, in particolare si effettuano le operazioni necessarie per la creazione di un oggetto RMI (creazione del registro, creazione dello stub, binding del nome ecc.) che rappresentano il Bootstrap Server stesso. \\
+
+\`E necessario che questo sia il primo esegubile ad essere lanciato, se non ci si vuole imbattere in un errore da parte dei Client e/o degli Storage Node che provano a contattare un Bootstrap Server inesistente!
+
+\subsection{StorageNode\_Client\_Main}
+L'esecuzione del Main di questa Classe consiste nel richiedere all'Utente di inserire il numero di Storage Node e Client che si intendono creare. Dopodich\`e, tramite un Thread Pool, verrano creati (e lanciati) una serie di Thread, il cui task \`e la creazione di un numero di Storage Node pari a quello indicato dall'Utente.\\
+
+Dopodich\`e, dopo un secondo di pausa, vengono creati i Client con lo stesso procedimento con cui sono appena stati creati gli Storage Node.\\
+
+Sebbene questo eseguibile fosse stato creato durante la fase di debugging, se ne consiglia l'uso nel caso in cui non si \`e presa ancora una certa familiarit\`a con le stampe prodotte durante l'esecuzione del Sistema.
+\subsection{Simulatore}
+
+Il Simulatore \`e stato creato per (appunto) simulare in maniera casuale la creazione di Storage Node e Client: vengono creati una serie casuale di elementi (per un massimo di 5) di Client e Storage Node, i cui Thread vengono lanciati con un ritardo anch'esso casuale.\\
+
+Dopodich\`e il Simulatore dorme per un tempo casuale e riprende da capo.\\
+
+Si sconsiglia fortemente l'uso di questo eseguibile se non si \`e familiari con le stampe prodotte dal Sistema.
+\section{Diagramma di Sequenza}
+In questa sezione si riporteranno i diagrammi di sequenza che riguardano la creazione di uno Storage Node e la ricerca da parte di un Client, nel tentativo di rendere pi\`u chiari i procedimenti che li caratterizzano. \\
+
+Per problemi di spazio, i Diagrammi di Sequenza sono stati "sintetizzati" in un unico messaggio tra due LifeLine. Ad esempio, l'insieme di istruzioni che comportano la domanda di un nuovo Storage Node della nodeTable e dell'indirizzo del successore al Bootstrap Node, vengono riassunte in un unico messaggio chiamato "askSuccessorAddressAndNodeTable" (che di fatto \`e un metodo inesistente).\\
+
+Inoltre, per non rendere i Diagrammi ulteriormente complicati, si \`e deciso di non riportare nel dettaglio le operazioni che riguardano le classi StorageNode\_UDP e StorageNode\_TCP, ma solo i passi fondamentali che consistono nella creazione dello Storage Node e nella ricerca effettuata da un Client.
+\pagebreak
+\subsection{StorageNode}
+\setlength{\headsep}{0pt}
+\setlength{\headheight}{0pt}
+\setlength{\voffset}{0pt}
+\setlength{\topmargin}{0pt}
+\setlength{\oddsidemargin}{0pt}
+\setlength{\footskip} {0pt}
+\includegraphics[width=176mm]{StorageNode.jpg}
+\subsection{Client}
+\includegraphics[width=80mm]{Client.jpg} 
+\chapter{Manuale Utente}
+\setlength{\headsep}{25pt}
+\setlength{\oddsidemargin}{62pt}
+\setlength{\footskip} {30pt}
+\section{Manuale Utente}
+In questa sezione verranno illustrate le istruzioni necessarie per la corretta compilazione ed utilizzo di \textit{Reduced Dynamo}, sia in un ambiente Locale che in Rete.
+\subsubsection{Nota su Software IDE:} nel caso in cui si voglia utilizzare \textit{Reduced Dynamo} in ambienti di sviluppo integrati (come ad esempio Eclipse), \`e necessario semplicemente importare i file \textit{.java} contenuti nella directory \textit{src}; inoltre \`e necessario creare il file \textit{filtext.text} all'interno dell'ambiente/directory di riferimento utilizzato dall'IDE desiderato (nel caso di Eclipse, la directory di default a cui si fa riferimento \`e \textit{workspace}). \`E necessario inoltre impostare i corretti parametri per l'utilizzo della versione in locale oppure in rete, come descritto in seguito.\\
+
+\subsection{Operazioni Comuni}
+\begin{enumerate}
+\item Assicurarsi che nella cartella \textit{jar} sia presente il file \textit{textfile.txt}
+\item Assicurarsi che il file in questione non sia vuoto, e che tutte le stringhe (dove ciascuna \`e corrispondente ad un dato diverso) siano separate dall'inizio di una nuova riga.
+\item Nel caso in cui si desideri utilizzare un file diverso rispetto a quello di default, effettuare i due passi precedenti e modificare tutte le occorrenze di "textfile.txt" nei file \textit{NodeFileReader.java} e \textit{StorageNode.java} con il nome del file di testo desiderato.
+\item Compilare il progetto tramite \textit{makefile.bat}
+\item Se il progetto \`e stato compilato correttamente, all'interno della directory \textit{classes} saranno presenti file \textit{.class} per ogni file \textit{.java} contenuto nella directory \textit{src}; inoltre saranno presenti nella directory \textit{jar} i file \textit{BootstrapServer.jar}, \textit{Simulatore.jar} ed infine \textit{StorageNode\_Client.jar} (oltre ai corrispondenti file \textit{.bat} gi\`a presenti prima della compilazone.
+\end{enumerate}
+\subsection{Versione Locale}
+\begin{enumerate}
+\item Aprire tramite editor di testo il file \textit{BootstrapServer.bat} ed impostare il primo parametro a 0.
+\item Salvare il file, chiuderlo ed infino eseguirlo. Se il Server funziona correttamente, nella nuova finestra creata dovrebbe essere stampato l'indirizzo IP della macchina su cui si sta lavorando (non di nostro interesse nella versione locale) e la creazione del file \textit{LogaManager.txt} (attualmente vuoto dato che non \`e stato creato nessuno StorageNode) all'interno della Directory corrente.
+\item A seconda che si voglia eseguire una simulazione controllata oppure casuale, aprire tramite editor di testo il file \textit{StorageNodeClient.bat} oppure \textit{Similuatore.bat} ed assicurarsi che non siano presenti parametri.
+\item Salvare il file, chiuderlo ed infine esegurilo. Durante l'esecuzione del Sistema, \`e possibile aprire i file \textit{LogManager.txt} e \textit{KeepAlive.txt} per vedere (oltre le relative stampe prodotte dalle finestre create) l'evoluzione del Sistema.
+\end{enumerate}
+\subsection{Versione di Rete}
+\begin{enumerate}
+\item Aprire tramite editor di testo il file \textit{BootstrapServer.bat} ed impostare il primo parametro a 1.
+\item Salvare il file, chiuderlo ed infino eseguirlo. Oltre ai risultati ottenuti dello stesso punto nella versione locale, \`e necessario prendere nota dell'indirizzo IP stampato dal Bootstrap Server.
+\item A seconda che si voglia eseguire una simulazione controllata oppure casuale, aprire tramite editor di testo il file \textit{StorageNodeClient.bat} oppure \textit{Similuatore.bat} ed utilizzare come primo (ed unico) parametro l'indirizzo IP stampato dal Bootstrap Server.
+\item Come punto 3. del locale. 
+\end{enumerate}
+\section{Test}
+Sebbene un normale progetto prevedi la strutturazione di una serie di test rilevanti (ed eventualmente trattarne i risultati), per \textit{Reduced Dynamo} la loro progettazionee risulta difficile da definire, dal momento che una parte dei fattori fondamentali che li compongono sono basati sul caso (come la determinazione degli indirizzi IP nella versione locale, e quindi la posizione degli Storage Node all'interno dell'anello) o su risultati non facilmente previdibili (come gli identificatori generati dalla funzione \textit{SHA-1}).\\
+
+Detto questo, nella directory \textit{testResult} sono presenti una serie di file di testo che riportano le stampe ottenute da un certo numero simulazioni casuali, in cui si sono verificati eventi esemplari o comunque di particolare interesse. Per facilitarne la comprensione, sono stati commentati dall'autore ed i dati utilizzati sono Stringhe di un carattere. Inoltre si consiglia di visualizzare i file di testo con Blocco Note di Wondiows occupando tutta la finestra.\\
+
+Di seguito riportiamo un breve elenco, con descrizione, dei file in questione (si consiglia fortemente di leggere per primo il file del test \textit{3StorageNode.txt}):
+\begin{itemize}
+\item \textit{3StorageNode.txt}: lo scopo di questo test \`e far prendere confidenza all'utente con le stampe prodotte dal sistema nell'inserimento di nuovi Storage Node all'interno della \textit{DHT}. Inoltre \`e presente il caso particolare in cui il nuovo Storage Node, essendo il nodo con identificatore pi\`u grande di tutto il Sistema, si rivolge al nodo con identificatore pi\`u piccolo.
+\item \textit{StorageNodeClientMonitor.txt}: in questo test viene mostrato il comportamento del Monitor nell'implementazione del modello Readers\&Writers con l'inserimento di 3 Storage Node e 3 Client. Infatti dopo l'inserimento dei primi due nodi, vengono creati i 3° Client, i quali hanno la precedenza rispetto allo Storage Node in quanto \`e il loro turno (si ricorda che il turno viene alternato per evitare meccanismi di starvation). Secondo il modello utilizzato, pi\`u Readers (cio\`e i Client) possono accedere alla risorsa condivisa in comporanea, e quindi la ricerca dei 3 Client avviene in maniera simultanea.
+\item \textit{BootstrapServer.txt}: in questo semplice test vengono visualizzate le stampe generate dal Bootstrap Server in seguito all'inserimento di una serie di Storage Node. In particolare viene stampato l'indice occupato dal Bootstrap Node scelto in maniera casuale dal Bootstrap Server all'interno della storageNodeList ed i suoi indirizzi. 
+\item \textit{FailedConnection.txt}: qui invece viene visualizzato il comportamento (o meglio, la stampa) di nuovi Storage Node nel tentativo di contattare un Bootstrap Server inesistente.
+\item \textit{NoStorageNode.txt}: in quest'ultimo test vengono fatte vedere le stampe generate dai Client nel caso in cui tentino una ricerca sulla \textit{DHT} che non contiene Storage Node.
+\end{itemize}
+
+\end{document}

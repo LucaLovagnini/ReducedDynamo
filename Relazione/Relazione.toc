@@ -1,0 +1,52 @@
+\contentsline {chapter}{\numberline {1}Archittetura e Sturtture Dati}{3}
+\contentsline {subsubsection}{Introduzione e Versione del Progetto}{3}
+\contentsline {section}{\numberline {1.1}Principali Entit\`a}{4}
+\contentsline {subsection}{\numberline {1.1.1}Bootstrap Server}{4}
+\contentsline {subsubsection}{Log Manager}{4}
+\contentsline {subsubsection}{Keep Alive Controller}{4}
+\contentsline {subsection}{\numberline {1.1.2}Storage Node}{4}
+\contentsline {subsubsection}{Bootstrap Node}{5}
+\contentsline {subsubsection}{Keep Alive Maker}{5}
+\contentsline {subsection}{\numberline {1.1.3}Client}{5}
+\contentsline {section}{\numberline {1.2}Strutture Dati}{6}
+\contentsline {subsection}{\numberline {1.2.1}DHT (\textit {Distributed Hash Table})}{6}
+\contentsline {subsection}{\numberline {1.2.2}storageNodeList}{6}
+\contentsline {subsection}{\numberline {1.2.3}dataTable}{6}
+\contentsline {subsection}{\numberline {1.2.4}nodeTable}{6}
+\contentsline {subsection}{\numberline {1.2.5}socketList}{7}
+\contentsline {subsection}{\numberline {1.2.6}dataFile}{7}
+\contentsline {chapter}{\numberline {2}Descrizione delle Classi e Scelte Implementative}{8}
+\contentsline {section}{\numberline {2.1}BootstrapServer}{8}
+\contentsline {subsection}{\numberline {2.1.1}BootstrapServer\_Monitor}{9}
+\contentsline {subsection}{\numberline {2.1.2}BootstrapServer\_Interface}{9}
+\contentsline {subsection}{\numberline {2.1.3}BootstrapServer\_Implementation}{10}
+\contentsline {subsection}{\numberline {2.1.4}BootstrapServer\_KeepAlive}{10}
+\contentsline {subsection}{\numberline {2.1.5}LogManager\_Interface}{11}
+\contentsline {subsection}{\numberline {2.1.6}LogManager\_Implementation}{11}
+\contentsline {section}{\numberline {2.2}Storage Node}{11}
+\contentsline {subsection}{\numberline {2.2.1}StorageNode}{12}
+\contentsline {subsection}{\numberline {2.2.2}StorageNode\_Multicast}{12}
+\contentsline {subsection}{\numberline {2.2.3}StorageNode\_UDP\&TCPMonitor}{13}
+\contentsline {subsection}{\numberline {2.2.4}StorageNode\_UDP\&TCPWriter}{13}
+\contentsline {subsection}{\numberline {2.2.5}StorageNode\_UDP}{14}
+\contentsline {subsection}{\numberline {2.2.6}StorageNode\_TCP}{14}
+\contentsline {subsection}{\numberline {2.2.7}StorageNode\_KeepAlive}{15}
+\contentsline {section}{\numberline {2.3}Client}{16}
+\contentsline {subsection}{\numberline {2.3.1}Client}{16}
+\contentsline {section}{\numberline {2.4}Altre Classi}{16}
+\contentsline {subsection}{\numberline {2.4.1}ScannerPorte}{16}
+\contentsline {subsection}{\numberline {2.4.2}NodeFileReader}{17}
+\contentsline {section}{\numberline {2.5}Programmi Eseguibili}{17}
+\contentsline {subsection}{\numberline {2.5.1}BootstrapServer\_Main}{17}
+\contentsline {subsection}{\numberline {2.5.2}StorageNode\_Client\_Main}{17}
+\contentsline {subsection}{\numberline {2.5.3}Simulatore}{18}
+\contentsline {section}{\numberline {2.6}Diagramma di Sequenza}{18}
+\contentsline {subsection}{\numberline {2.6.1}StorageNode}{19}
+\contentsline {subsection}{\numberline {2.6.2}Client}{19}
+\contentsline {chapter}{\numberline {3}Manuale Utente}{20}
+\contentsline {section}{\numberline {3.1}Manuale Utente}{20}
+\contentsline {subsubsection}{Nota su Software IDE:}{20}
+\contentsline {subsection}{\numberline {3.1.1}Operazioni Comuni}{20}
+\contentsline {subsection}{\numberline {3.1.2}Versione Locale}{21}
+\contentsline {subsection}{\numberline {3.1.3}Versione di Rete}{21}
+\contentsline {section}{\numberline {3.2}Test}{21}
