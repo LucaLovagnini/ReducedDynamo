@@ -1,9 +1,0 @@
-Inserire il numero di Storage Node che si vogliono creare:
-5
-Inserire il numero di Client che si vogliono creare:
-0
-Connessione al server fallita per il nodo Thread[pool-1-thread-2,5,main]
-Connessione al server fallita per il nodo Thread[pool-1-thread-1,5,main]
-Connessione al server fallita per il nodo Thread[pool-1-thread-5,5,main]
-Connessione al server fallita per il nodo Thread[pool-1-thread-4,5,main]
-Connessione al server fallita per il nodo Thread[pool-1-thread-3,5,main]
